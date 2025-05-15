@@ -1,0 +1,4 @@
+configured_endpoints: 15
+openapi_spec_url: https://storage.googleapis.com/stainless-sdk-openapi-specs/howcollect-co%2Fstainlesstest-c0f09bcb7971cf8f2a49b0ea9cf5fa5babcdf0160405ea75d990591d1b4e4328.yml
+openapi_spec_hash: d56e97dfa0941ea1ba72a945f127301a
+config_hash: 673ebf4607649e99c3a87c4c6a060480
