@@ -26,7 +26,7 @@ class LightingSummaryResource(SyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/stainlesstest-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/mihairu0511/stainlessTest#accessing-raw-response-data-eg-headers
         """
         return LightingSummaryResourceWithRawResponse(self)
 
@@ -35,7 +35,7 @@ class LightingSummaryResource(SyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/stainlesstest-python#with_streaming_response
+        For more information, see https://www.github.com/mihairu0511/stainlessTest#with_streaming_response
         """
         return LightingSummaryResourceWithStreamingResponse(self)
 
@@ -65,7 +65,7 @@ class AsyncLightingSummaryResource(AsyncAPIResource):
         This property can be used as a prefix for any HTTP method call to return
         the raw response object instead of the parsed content.
 
-        For more information, see https://www.github.com/stainless-sdks/stainlesstest-python#accessing-raw-response-data-eg-headers
+        For more information, see https://www.github.com/mihairu0511/stainlessTest#accessing-raw-response-data-eg-headers
         """
         return AsyncLightingSummaryResourceWithRawResponse(self)
 
@@ -74,7 +74,7 @@ class AsyncLightingSummaryResource(AsyncAPIResource):
         """
         An alternative to `.with_raw_response` that doesn't eagerly read the response body.
 
-        For more information, see https://www.github.com/stainless-sdks/stainlesstest-python#with_streaming_response
+        For more information, see https://www.github.com/mihairu0511/stainlessTest#with_streaming_response
         """
         return AsyncLightingSummaryResourceWithStreamingResponse(self)
 
