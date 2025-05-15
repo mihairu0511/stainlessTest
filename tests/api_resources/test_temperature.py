@@ -9,7 +9,11 @@ import pytest
 
 from tests.utils import assert_matches_type
 from stainlesstest import Stainlesstest, AsyncStainlesstest
-from stainlesstest.types import TemperatureZoneStatus, TemperatureForecastResponse, TemperatureRetrieveResponse
+from stainlesstest.types import (
+    TemperatureForecastResponse,
+    TemperatureRetrieveResponse,
+    TemperatureZoneStatusSingleZone,
+)
 
 base_url = os.environ.get("TEST_API_BASE_URL", "http://127.0.0.1:4010")
 
@@ -85,7 +89,7 @@ class TestTemperature:
         temperature = client.temperature.retrieve_by_zone(
             "zoneId",
         )
-        assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+        assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -97,7 +101,7 @@ class TestTemperature:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         temperature = response.parse()
-        assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+        assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -109,7 +113,7 @@ class TestTemperature:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             temperature = response.parse()
-            assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+            assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
@@ -193,7 +197,7 @@ class TestAsyncTemperature:
         temperature = await async_client.temperature.retrieve_by_zone(
             "zoneId",
         )
-        assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+        assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -205,7 +209,7 @@ class TestAsyncTemperature:
         assert response.is_closed is True
         assert response.http_request.headers.get("X-Stainless-Lang") == "python"
         temperature = await response.parse()
-        assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+        assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
     @pytest.mark.skip()
     @parametrize
@@ -217,7 +221,7 @@ class TestAsyncTemperature:
             assert response.http_request.headers.get("X-Stainless-Lang") == "python"
 
             temperature = await response.parse()
-            assert_matches_type(TemperatureZoneStatus, temperature, path=["response"])
+            assert_matches_type(TemperatureZoneStatusSingleZone, temperature, path=["response"])
 
         assert cast(Any, response.is_closed) is True
 
