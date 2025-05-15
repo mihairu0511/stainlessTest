@@ -58,6 +58,7 @@ Types:
 
 ```python
 from stainlesstest.types import (
+    TemperatureZoneStatus,
     TemperatureZoneStatusSingleZone,
     TemperatureRetrieveResponse,
     TemperatureForecastResponse,
