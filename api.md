@@ -58,7 +58,7 @@ Types:
 
 ```python
 from stainlesstest.types import (
-    TemperatureZoneStatus,
+    TemperatureZoneStatusSingleZone,
     TemperatureRetrieveResponse,
     TemperatureForecastResponse,
 )
@@ -68,7 +68,7 @@ Methods:
 
 - <code title="get /temperature">client.temperature.<a href="./src/stainlesstest/resources/temperature/temperature.py">retrieve</a>() -> <a href="./src/stainlesstest/types/temperature_retrieve_response.py">TemperatureRetrieveResponse</a></code>
 - <code title="get /temperature/forecast/{days}">client.temperature.<a href="./src/stainlesstest/resources/temperature/temperature.py">forecast</a>(days) -> <a href="./src/stainlesstest/types/temperature_forecast_response.py">TemperatureForecastResponse</a></code>
-- <code title="get /temperature/{zoneId}">client.temperature.<a href="./src/stainlesstest/resources/temperature/temperature.py">retrieve_by_zone</a>(zone_id) -> <a href="./src/stainlesstest/types/temperature_zone_status.py">TemperatureZoneStatus</a></code>
+- <code title="get /temperature/{zoneId}">client.temperature.<a href="./src/stainlesstest/resources/temperature/temperature.py">retrieve_by_zone</a>(zone_id) -> <a href="./src/stainlesstest/types/temperature_zone_status_single_zone.py">TemperatureZoneStatusSingleZone</a></code>
 
 ## Heater
 

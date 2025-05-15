@@ -22,9 +22,9 @@ from ..._response import (
     async_to_streamed_response_wrapper,
 )
 from ..._base_client import make_request_options
-from ...types.temperature_zone_status import TemperatureZoneStatus
 from ...types.temperature_forecast_response import TemperatureForecastResponse
 from ...types.temperature_retrieve_response import TemperatureRetrieveResponse
+from ...types.temperature_zone_status_single_zone import TemperatureZoneStatusSingleZone
 
 __all__ = ["TemperatureResource", "AsyncTemperatureResource"]
 
@@ -110,7 +110,7 @@ class TemperatureResource(SyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TemperatureZoneStatus:
+    ) -> TemperatureZoneStatusSingleZone:
         """
         Args:
           extra_headers: Send extra headers
@@ -128,7 +128,7 @@ class TemperatureResource(SyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TemperatureZoneStatus,
+            cast_to=TemperatureZoneStatusSingleZone,
         )
 
 
@@ -213,7 +213,7 @@ class AsyncTemperatureResource(AsyncAPIResource):
         extra_query: Query | None = None,
         extra_body: Body | None = None,
         timeout: float | httpx.Timeout | None | NotGiven = NOT_GIVEN,
-    ) -> TemperatureZoneStatus:
+    ) -> TemperatureZoneStatusSingleZone:
         """
         Args:
           extra_headers: Send extra headers
@@ -231,7 +231,7 @@ class AsyncTemperatureResource(AsyncAPIResource):
             options=make_request_options(
                 extra_headers=extra_headers, extra_query=extra_query, extra_body=extra_body, timeout=timeout
             ),
-            cast_to=TemperatureZoneStatus,
+            cast_to=TemperatureZoneStatusSingleZone,
         )
 
 
