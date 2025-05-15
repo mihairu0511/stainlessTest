@@ -6,10 +6,10 @@ from typing_extensions import Literal
 
 from .._models import BaseModel
 
-__all__ = ["TemperatureZoneStatusSingleZone"]
+__all__ = ["TemperatureZoneStatus"]
 
 
-class TemperatureZoneStatusSingleZone(BaseModel):
+class TemperatureZoneStatus(BaseModel):
     id: str
     """the unique identifier for the zone"""
 

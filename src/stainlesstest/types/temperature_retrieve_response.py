@@ -5,7 +5,7 @@ from typing import List, Optional
 from pydantic import Field as FieldInfo
 
 from .._models import BaseModel
-from .temperature_zone_status_single_zone import TemperatureZoneStatusSingleZone
+from .temperature_zone_status import TemperatureZoneStatus
 
 __all__ = ["TemperatureRetrieveResponse", "Zone"]
 
@@ -26,4 +26,4 @@ class Zone(BaseModel):
 class TemperatureRetrieveResponse(BaseModel):
     zones: Optional[List[Zone]] = None
 
-    zone_status: Optional[List[TemperatureZoneStatusSingleZone]] = FieldInfo(alias="zoneStatus", default=None)
+    zone_status: Optional[List[TemperatureZoneStatus]] = FieldInfo(alias="zoneStatus", default=None)
