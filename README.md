@@ -10,14 +10,17 @@ It is generated with [Stainless](https://www.stainless.com/).
 
 ## Documentation
 
-The full API of this library can be found in [api.md](api.md).
+The REST API documentation can be found on [replicate.com](https://replicate.com/docs/reference/http). The full API of this library can be found in [api.md](api.md).
 
 ## Installation
 
 ```sh
-# install from PyPI
-pip install --pre stainlesstest
+# install from this staging repo
+pip install git+ssh://git@github.com/stainless-sdks/stainlesstest-python.git
 ```
+
+> [!NOTE]
+> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre stainlesstest`
 
 ## Usage
 
@@ -31,7 +34,9 @@ client = Stainlesstest(
     api_key=os.environ.get("STAINLESSTEST_API_KEY"),  # This is the default and can be omitted
 )
 
-devices = client.devices.list()
+client.collections.retrieve(
+    "collection_slug",
+)
 ```
 
 While you can provide an `api_key` keyword argument,
@@ -54,7 +59,9 @@ client = AsyncStainlesstest(
 
 
 async def main() -> None:
-    devices = await client.devices.list()
+    await client.collections.retrieve(
+        "collection_slug",
+    )
 
 
 asyncio.run(main())
@@ -70,6 +77,23 @@ Nested request parameters are [TypedDicts](https://docs.python.org/3/library/typ
 - Converting to a dictionary, `model.to_dict()`
 
 Typed requests and responses provide autocomplete and documentation within your editor. If you would like to see type errors in VS Code to help catch bugs earlier, set `python.analysis.typeCheckingMode` to `basic`.
+
+## File uploads
+
+Request parameters that correspond to file uploads can be passed as `bytes`, or a [`PathLike`](https://docs.python.org/3/library/os.html#os.PathLike) instance or a tuple of `(filename, contents, media type)`.
+
+```python
+from pathlib import Path
+from stainlesstest import Stainlesstest
+
+client = Stainlesstest()
+
+client.files.create(
+    content=Path("/path/to/file"),
+)
+```
+
+The async client uses the exact same interface. If you pass a [`PathLike`](https://docs.python.org/3/library/os.html#os.PathLike) instance, the file contents will be read asynchronously automatically.
 
 ## Handling errors
 
@@ -87,7 +111,9 @@ from stainlesstest import Stainlesstest
 client = Stainlesstest()
 
 try:
-    client.devices.list()
+    client.collections.retrieve(
+        "collection_slug",
+    )
 except stainlesstest.APIConnectionError as e:
     print("The server could not be reached")
     print(e.__cause__)  # an underlying Exception, likely raised within httpx.
@@ -130,7 +156,9 @@ client = Stainlesstest(
 )
 
 # Or, configure per-request:
-client.with_options(max_retries=5).devices.list()
+client.with_options(max_retries=5).collections.retrieve(
+    "collection_slug",
+)
 ```
 
 ### Timeouts
@@ -153,7 +181,9 @@ client = Stainlesstest(
 )
 
 # Override per-request:
-client.with_options(timeout=5.0).devices.list()
+client.with_options(timeout=5.0).collections.retrieve(
+    "collection_slug",
+)
 ```
 
 On timeout, an `APITimeoutError` is thrown.
@@ -194,16 +224,18 @@ The "raw" Response object can be accessed by prefixing `.with_raw_response.` to 
 from stainlesstest import Stainlesstest
 
 client = Stainlesstest()
-response = client.devices.with_raw_response.list()
+response = client.collections.with_raw_response.retrieve(
+    "collection_slug",
+)
 print(response.headers.get('X-My-Header'))
 
-device = response.parse()  # get the object that `devices.list()` would have returned
-print(device)
+collection = response.parse()  # get the object that `collections.retrieve()` would have returned
+print(collection)
 ```
 
-These methods return an [`APIResponse`](https://github.com/mihairu0511/stainlessTest/tree/main/src/stainlesstest/_response.py) object.
+These methods return an [`APIResponse`](https://github.com/stainless-sdks/stainlesstest-python/tree/main/src/stainlesstest/_response.py) object.
 
-The async client returns an [`AsyncAPIResponse`](https://github.com/mihairu0511/stainlessTest/tree/main/src/stainlesstest/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
+The async client returns an [`AsyncAPIResponse`](https://github.com/stainless-sdks/stainlesstest-python/tree/main/src/stainlesstest/_response.py) with the same structure, the only difference being `await`able methods for reading the response content.
 
 #### `.with_streaming_response`
 
@@ -212,7 +244,9 @@ The above interface eagerly reads the full response body when you make the reque
 To stream the response body, use `.with_streaming_response` instead, which requires a context manager and only reads the response body once you call `.read()`, `.text()`, `.json()`, `.iter_bytes()`, `.iter_text()`, `.iter_lines()` or `.parse()`. In the async client, these are async methods.
 
 ```python
-with client.devices.with_streaming_response.list() as response:
+with client.collections.with_streaming_response.retrieve(
+    "collection_slug",
+) as response:
     print(response.headers.get("X-My-Header"))
 
     for line in response.iter_lines():
@@ -307,7 +341,7 @@ This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) con
 
 We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
 
-We are keen for your feedback; please open an [issue](https://www.github.com/mihairu0511/stainlessTest/issues) with questions, bugs, or suggestions.
+We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/stainlesstest-python/issues) with questions, bugs, or suggestions.
 
 ### Determining the installed version
 
