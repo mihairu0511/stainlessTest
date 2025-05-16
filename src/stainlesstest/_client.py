@@ -13,7 +13,6 @@ from ._qs import Querystring
 from ._types import (
     NOT_GIVEN,
     Omit,
-    Headers,
     Timeout,
     NotGiven,
     Transport,
@@ -22,16 +21,16 @@ from ._types import (
 )
 from ._utils import is_given, get_async_library
 from ._version import __version__
-from .resources import zones, devices, lighting_summary
+from .resources import files, hardware, trainings, collections, deployments, predictions
 from ._streaming import Stream as Stream, AsyncStream as AsyncStream
-from ._exceptions import APIStatusError
+from ._exceptions import APIStatusError, StainlesstestError
 from ._base_client import (
     DEFAULT_MAX_RETRIES,
     SyncAPIClient,
     AsyncAPIClient,
 )
-from .resources.lighting import lighting
-from .resources.temperature import temperature
+from .resources.models import models
+from .resources.webhooks import webhooks
 
 __all__ = [
     "Timeout",
@@ -46,16 +45,19 @@ __all__ = [
 
 
 class Stainlesstest(SyncAPIClient):
-    devices: devices.DevicesResource
-    lighting: lighting.LightingResource
-    lighting_summary: lighting_summary.LightingSummaryResource
-    temperature: temperature.TemperatureResource
-    zones: zones.ZonesResource
+    collections: collections.CollectionsResource
+    deployments: deployments.DeploymentsResource
+    files: files.FilesResource
+    hardware: hardware.HardwareResource
+    models: models.ModelsResource
+    predictions: predictions.PredictionsResource
+    trainings: trainings.TrainingsResource
+    webhooks: webhooks.WebhooksResource
     with_raw_response: StainlesstestWithRawResponse
     with_streaming_response: StainlesstestWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
 
     def __init__(
         self,
@@ -86,12 +88,16 @@ class Stainlesstest(SyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("STAINLESSTEST_API_KEY")
+        if api_key is None:
+            raise StainlesstestError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the STAINLESSTEST_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if base_url is None:
             base_url = os.environ.get("STAINLESSTEST_BASE_URL")
         if base_url is None:
-            base_url = f"https://virtserver.swaggerhub.com/individual-172/test/1.0.0"
+            base_url = f"https://api.replicate.com/v1"
 
         super().__init__(
             version=__version__,
@@ -104,11 +110,14 @@ class Stainlesstest(SyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.devices = devices.DevicesResource(self)
-        self.lighting = lighting.LightingResource(self)
-        self.lighting_summary = lighting_summary.LightingSummaryResource(self)
-        self.temperature = temperature.TemperatureResource(self)
-        self.zones = zones.ZonesResource(self)
+        self.collections = collections.CollectionsResource(self)
+        self.deployments = deployments.DeploymentsResource(self)
+        self.files = files.FilesResource(self)
+        self.hardware = hardware.HardwareResource(self)
+        self.models = models.ModelsResource(self)
+        self.predictions = predictions.PredictionsResource(self)
+        self.trainings = trainings.TrainingsResource(self)
+        self.webhooks = webhooks.WebhooksResource(self)
         self.with_raw_response = StainlesstestWithRawResponse(self)
         self.with_streaming_response = StainlesstestWithStreamedResponse(self)
 
@@ -121,8 +130,6 @@ class Stainlesstest(SyncAPIClient):
     @override
     def auth_headers(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"Authorization": f"Bearer {api_key}"}
 
     @property
@@ -133,17 +140,6 @@ class Stainlesstest(SyncAPIClient):
             "X-Stainless-Async": "false",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,
@@ -231,16 +227,19 @@ class Stainlesstest(SyncAPIClient):
 
 
 class AsyncStainlesstest(AsyncAPIClient):
-    devices: devices.AsyncDevicesResource
-    lighting: lighting.AsyncLightingResource
-    lighting_summary: lighting_summary.AsyncLightingSummaryResource
-    temperature: temperature.AsyncTemperatureResource
-    zones: zones.AsyncZonesResource
+    collections: collections.AsyncCollectionsResource
+    deployments: deployments.AsyncDeploymentsResource
+    files: files.AsyncFilesResource
+    hardware: hardware.AsyncHardwareResource
+    models: models.AsyncModelsResource
+    predictions: predictions.AsyncPredictionsResource
+    trainings: trainings.AsyncTrainingsResource
+    webhooks: webhooks.AsyncWebhooksResource
     with_raw_response: AsyncStainlesstestWithRawResponse
     with_streaming_response: AsyncStainlesstestWithStreamedResponse
 
     # client options
-    api_key: str | None
+    api_key: str
 
     def __init__(
         self,
@@ -271,12 +270,16 @@ class AsyncStainlesstest(AsyncAPIClient):
         """
         if api_key is None:
             api_key = os.environ.get("STAINLESSTEST_API_KEY")
+        if api_key is None:
+            raise StainlesstestError(
+                "The api_key client option must be set either by passing api_key to the client or by setting the STAINLESSTEST_API_KEY environment variable"
+            )
         self.api_key = api_key
 
         if base_url is None:
             base_url = os.environ.get("STAINLESSTEST_BASE_URL")
         if base_url is None:
-            base_url = f"https://virtserver.swaggerhub.com/individual-172/test/1.0.0"
+            base_url = f"https://api.replicate.com/v1"
 
         super().__init__(
             version=__version__,
@@ -289,11 +292,14 @@ class AsyncStainlesstest(AsyncAPIClient):
             _strict_response_validation=_strict_response_validation,
         )
 
-        self.devices = devices.AsyncDevicesResource(self)
-        self.lighting = lighting.AsyncLightingResource(self)
-        self.lighting_summary = lighting_summary.AsyncLightingSummaryResource(self)
-        self.temperature = temperature.AsyncTemperatureResource(self)
-        self.zones = zones.AsyncZonesResource(self)
+        self.collections = collections.AsyncCollectionsResource(self)
+        self.deployments = deployments.AsyncDeploymentsResource(self)
+        self.files = files.AsyncFilesResource(self)
+        self.hardware = hardware.AsyncHardwareResource(self)
+        self.models = models.AsyncModelsResource(self)
+        self.predictions = predictions.AsyncPredictionsResource(self)
+        self.trainings = trainings.AsyncTrainingsResource(self)
+        self.webhooks = webhooks.AsyncWebhooksResource(self)
         self.with_raw_response = AsyncStainlesstestWithRawResponse(self)
         self.with_streaming_response = AsyncStainlesstestWithStreamedResponse(self)
 
@@ -306,8 +312,6 @@ class AsyncStainlesstest(AsyncAPIClient):
     @override
     def auth_headers(self) -> dict[str, str]:
         api_key = self.api_key
-        if api_key is None:
-            return {}
         return {"Authorization": f"Bearer {api_key}"}
 
     @property
@@ -318,17 +322,6 @@ class AsyncStainlesstest(AsyncAPIClient):
             "X-Stainless-Async": f"async:{get_async_library()}",
             **self._custom_headers,
         }
-
-    @override
-    def _validate_headers(self, headers: Headers, custom_headers: Headers) -> None:
-        if self.api_key and headers.get("Authorization"):
-            return
-        if isinstance(custom_headers.get("Authorization"), Omit):
-            return
-
-        raise TypeError(
-            '"Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted"'
-        )
 
     def copy(
         self,
@@ -417,40 +410,50 @@ class AsyncStainlesstest(AsyncAPIClient):
 
 class StainlesstestWithRawResponse:
     def __init__(self, client: Stainlesstest) -> None:
-        self.devices = devices.DevicesResourceWithRawResponse(client.devices)
-        self.lighting = lighting.LightingResourceWithRawResponse(client.lighting)
-        self.lighting_summary = lighting_summary.LightingSummaryResourceWithRawResponse(client.lighting_summary)
-        self.temperature = temperature.TemperatureResourceWithRawResponse(client.temperature)
-        self.zones = zones.ZonesResourceWithRawResponse(client.zones)
+        self.collections = collections.CollectionsResourceWithRawResponse(client.collections)
+        self.deployments = deployments.DeploymentsResourceWithRawResponse(client.deployments)
+        self.files = files.FilesResourceWithRawResponse(client.files)
+        self.hardware = hardware.HardwareResourceWithRawResponse(client.hardware)
+        self.models = models.ModelsResourceWithRawResponse(client.models)
+        self.predictions = predictions.PredictionsResourceWithRawResponse(client.predictions)
+        self.trainings = trainings.TrainingsResourceWithRawResponse(client.trainings)
+        self.webhooks = webhooks.WebhooksResourceWithRawResponse(client.webhooks)
 
 
 class AsyncStainlesstestWithRawResponse:
     def __init__(self, client: AsyncStainlesstest) -> None:
-        self.devices = devices.AsyncDevicesResourceWithRawResponse(client.devices)
-        self.lighting = lighting.AsyncLightingResourceWithRawResponse(client.lighting)
-        self.lighting_summary = lighting_summary.AsyncLightingSummaryResourceWithRawResponse(client.lighting_summary)
-        self.temperature = temperature.AsyncTemperatureResourceWithRawResponse(client.temperature)
-        self.zones = zones.AsyncZonesResourceWithRawResponse(client.zones)
+        self.collections = collections.AsyncCollectionsResourceWithRawResponse(client.collections)
+        self.deployments = deployments.AsyncDeploymentsResourceWithRawResponse(client.deployments)
+        self.files = files.AsyncFilesResourceWithRawResponse(client.files)
+        self.hardware = hardware.AsyncHardwareResourceWithRawResponse(client.hardware)
+        self.models = models.AsyncModelsResourceWithRawResponse(client.models)
+        self.predictions = predictions.AsyncPredictionsResourceWithRawResponse(client.predictions)
+        self.trainings = trainings.AsyncTrainingsResourceWithRawResponse(client.trainings)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithRawResponse(client.webhooks)
 
 
 class StainlesstestWithStreamedResponse:
     def __init__(self, client: Stainlesstest) -> None:
-        self.devices = devices.DevicesResourceWithStreamingResponse(client.devices)
-        self.lighting = lighting.LightingResourceWithStreamingResponse(client.lighting)
-        self.lighting_summary = lighting_summary.LightingSummaryResourceWithStreamingResponse(client.lighting_summary)
-        self.temperature = temperature.TemperatureResourceWithStreamingResponse(client.temperature)
-        self.zones = zones.ZonesResourceWithStreamingResponse(client.zones)
+        self.collections = collections.CollectionsResourceWithStreamingResponse(client.collections)
+        self.deployments = deployments.DeploymentsResourceWithStreamingResponse(client.deployments)
+        self.files = files.FilesResourceWithStreamingResponse(client.files)
+        self.hardware = hardware.HardwareResourceWithStreamingResponse(client.hardware)
+        self.models = models.ModelsResourceWithStreamingResponse(client.models)
+        self.predictions = predictions.PredictionsResourceWithStreamingResponse(client.predictions)
+        self.trainings = trainings.TrainingsResourceWithStreamingResponse(client.trainings)
+        self.webhooks = webhooks.WebhooksResourceWithStreamingResponse(client.webhooks)
 
 
 class AsyncStainlesstestWithStreamedResponse:
     def __init__(self, client: AsyncStainlesstest) -> None:
-        self.devices = devices.AsyncDevicesResourceWithStreamingResponse(client.devices)
-        self.lighting = lighting.AsyncLightingResourceWithStreamingResponse(client.lighting)
-        self.lighting_summary = lighting_summary.AsyncLightingSummaryResourceWithStreamingResponse(
-            client.lighting_summary
-        )
-        self.temperature = temperature.AsyncTemperatureResourceWithStreamingResponse(client.temperature)
-        self.zones = zones.AsyncZonesResourceWithStreamingResponse(client.zones)
+        self.collections = collections.AsyncCollectionsResourceWithStreamingResponse(client.collections)
+        self.deployments = deployments.AsyncDeploymentsResourceWithStreamingResponse(client.deployments)
+        self.files = files.AsyncFilesResourceWithStreamingResponse(client.files)
+        self.hardware = hardware.AsyncHardwareResourceWithStreamingResponse(client.hardware)
+        self.models = models.AsyncModelsResourceWithStreamingResponse(client.models)
+        self.predictions = predictions.AsyncPredictionsResourceWithStreamingResponse(client.predictions)
+        self.trainings = trainings.AsyncTrainingsResourceWithStreamingResponse(client.trainings)
+        self.webhooks = webhooks.AsyncWebhooksResourceWithStreamingResponse(client.webhooks)
 
 
 Client = Stainlesstest

@@ -25,7 +25,7 @@ from stainlesstest import Stainlesstest, AsyncStainlesstest, APIResponseValidati
 from stainlesstest._types import Omit
 from stainlesstest._models import BaseModel, FinalRequestOptions
 from stainlesstest._constants import RAW_RESPONSE_HEADER
-from stainlesstest._exceptions import APIStatusError, APITimeoutError, APIResponseValidationError
+from stainlesstest._exceptions import APIStatusError, APITimeoutError, StainlesstestError, APIResponseValidationError
 from stainlesstest._base_client import (
     DEFAULT_TIMEOUT,
     HTTPX_DEFAULT_TIMEOUT,
@@ -339,19 +339,10 @@ class TestStainlesstest:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {api_key}"
 
-        with update_env(**{"STAINLESSTEST_API_KEY": Omit()}):
-            client2 = Stainlesstest(base_url=base_url, api_key=None, _strict_response_validation=True)
-
-        with pytest.raises(
-            TypeError,
-            match="Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted",
-        ):
-            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
-
-        request2 = client2._build_request(
-            FinalRequestOptions(method="get", url="/foo", headers={"Authorization": Omit()})
-        )
-        assert request2.headers.get("Authorization") is None
+        with pytest.raises(StainlesstestError):
+            with update_env(**{"STAINLESSTEST_API_KEY": Omit()}):
+                client2 = Stainlesstest(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = Stainlesstest(
@@ -731,20 +722,28 @@ class TestStainlesstest:
     @mock.patch("stainlesstest._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/devices").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.get("/collections/collection_slug").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
-            self.client.get("/devices", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}})
+            self.client.get(
+                "/collections/collection_slug",
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
+            )
 
         assert _get_open_connections(self.client) == 0
 
     @mock.patch("stainlesstest._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/devices").mock(return_value=httpx.Response(500))
+        respx_mock.get("/collections/collection_slug").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
-            self.client.get("/devices", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}})
+            self.client.get(
+                "/collections/collection_slug",
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
+            )
 
         assert _get_open_connections(self.client) == 0
 
@@ -772,9 +771,9 @@ class TestStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = client.devices.with_raw_response.list()
+        response = client.collections.with_raw_response.retrieve("collection_slug")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -796,9 +795,11 @@ class TestStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = client.devices.with_raw_response.list(extra_headers={"x-stainless-retry-count": Omit()})
+        response = client.collections.with_raw_response.retrieve(
+            "collection_slug", extra_headers={"x-stainless-retry-count": Omit()}
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -819,9 +820,11 @@ class TestStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = client.devices.with_raw_response.list(extra_headers={"x-stainless-retry-count": "42"})
+        response = client.collections.with_raw_response.retrieve(
+            "collection_slug", extra_headers={"x-stainless-retry-count": "42"}
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 
@@ -1110,19 +1113,10 @@ class TestAsyncStainlesstest:
         request = client._build_request(FinalRequestOptions(method="get", url="/foo"))
         assert request.headers.get("Authorization") == f"Bearer {api_key}"
 
-        with update_env(**{"STAINLESSTEST_API_KEY": Omit()}):
-            client2 = AsyncStainlesstest(base_url=base_url, api_key=None, _strict_response_validation=True)
-
-        with pytest.raises(
-            TypeError,
-            match="Could not resolve authentication method. Expected the api_key to be set. Or for the `Authorization` headers to be explicitly omitted",
-        ):
-            client2._build_request(FinalRequestOptions(method="get", url="/foo"))
-
-        request2 = client2._build_request(
-            FinalRequestOptions(method="get", url="/foo", headers={"Authorization": Omit()})
-        )
-        assert request2.headers.get("Authorization") is None
+        with pytest.raises(StainlesstestError):
+            with update_env(**{"STAINLESSTEST_API_KEY": Omit()}):
+                client2 = AsyncStainlesstest(base_url=base_url, api_key=None, _strict_response_validation=True)
+            _ = client2
 
     def test_default_query_option(self) -> None:
         client = AsyncStainlesstest(
@@ -1506,11 +1500,13 @@ class TestAsyncStainlesstest:
     @mock.patch("stainlesstest._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_timeout_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/devices").mock(side_effect=httpx.TimeoutException("Test timeout error"))
+        respx_mock.get("/collections/collection_slug").mock(side_effect=httpx.TimeoutException("Test timeout error"))
 
         with pytest.raises(APITimeoutError):
             await self.client.get(
-                "/devices", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/collections/collection_slug",
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1518,11 +1514,13 @@ class TestAsyncStainlesstest:
     @mock.patch("stainlesstest._base_client.BaseClient._calculate_retry_timeout", _low_retry_timeout)
     @pytest.mark.respx(base_url=base_url)
     async def test_retrying_status_errors_doesnt_leak(self, respx_mock: MockRouter) -> None:
-        respx_mock.get("/devices").mock(return_value=httpx.Response(500))
+        respx_mock.get("/collections/collection_slug").mock(return_value=httpx.Response(500))
 
         with pytest.raises(APIStatusError):
             await self.client.get(
-                "/devices", cast_to=httpx.Response, options={"headers": {RAW_RESPONSE_HEADER: "stream"}}
+                "/collections/collection_slug",
+                cast_to=httpx.Response,
+                options={"headers": {RAW_RESPONSE_HEADER: "stream"}},
             )
 
         assert _get_open_connections(self.client) == 0
@@ -1552,9 +1550,9 @@ class TestAsyncStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = await client.devices.with_raw_response.list()
+        response = await client.collections.with_raw_response.retrieve("collection_slug")
 
         assert response.retries_taken == failures_before_success
         assert int(response.http_request.headers.get("x-stainless-retry-count")) == failures_before_success
@@ -1577,9 +1575,11 @@ class TestAsyncStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = await client.devices.with_raw_response.list(extra_headers={"x-stainless-retry-count": Omit()})
+        response = await client.collections.with_raw_response.retrieve(
+            "collection_slug", extra_headers={"x-stainless-retry-count": Omit()}
+        )
 
         assert len(response.http_request.headers.get_list("x-stainless-retry-count")) == 0
 
@@ -1601,9 +1601,11 @@ class TestAsyncStainlesstest:
                 return httpx.Response(500)
             return httpx.Response(200)
 
-        respx_mock.get("/devices").mock(side_effect=retry_handler)
+        respx_mock.get("/collections/collection_slug").mock(side_effect=retry_handler)
 
-        response = await client.devices.with_raw_response.list(extra_headers={"x-stainless-retry-count": "42"})
+        response = await client.collections.with_raw_response.retrieve(
+            "collection_slug", extra_headers={"x-stainless-retry-count": "42"}
+        )
 
         assert response.http_request.headers.get("x-stainless-retry-count") == "42"
 

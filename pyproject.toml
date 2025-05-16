@@ -5,7 +5,7 @@ description = "The official Python library for the stainlesstest API"
 dynamic = ["readme"]
 license = "Apache-2.0"
 authors = [
-{ name = "Stainlesstest", email = "" },
+{ name = "Stainlesstest", email = "team@replicate.com" },
 ]
 dependencies = [
     "httpx>=0.23.0, <1",
@@ -34,8 +34,8 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/mihairu0511/stainlessTest"
-Repository = "https://github.com/mihairu0511/stainlessTest"
+Homepage = "https://github.com/stainless-sdks/stainlesstest-python"
+Repository = "https://github.com/stainless-sdks/stainlesstest-python"
 
 
 [tool.rye]
@@ -121,7 +121,7 @@ path = "README.md"
 [[tool.hatch.metadata.hooks.fancy-pypi-readme.substitutions]]
 # replace relative links with absolute links
 pattern = '\[(.+?)\]\(((?!https?://)\S+?)\)'
-replacement = '[\1](https://github.com/mihairu0511/stainlessTest/tree/main/\g<2>)'
+replacement = '[\1](https://github.com/stainless-sdks/stainlesstest-python/tree/main/\g<2>)'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
