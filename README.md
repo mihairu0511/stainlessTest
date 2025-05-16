@@ -15,12 +15,9 @@ The REST API documentation can be found on [replicate.com](https://replicate.com
 ## Installation
 
 ```sh
-# install from the production repo
-pip install git+ssh://git@github.com/mihairu0511/stainlessTest.git
+# install from PyPI
+pip install --pre stainlesstest
 ```
-
-> [!NOTE]
-> Once this package is [published to PyPI](https://app.stainless.com/docs/guides/publish), this will become: `pip install --pre stainlesstest`
 
 ## Usage
 
